@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html ng-app="DashPlayer" lang="en">
 <head>
@@ -41,6 +40,24 @@
 
 </head>
 <body ng-controller="DashController">
+
+<!-- COMP 445 Script -->
+<script>
+    console.log('Hello World')
+    setInterval(() => {
+        var streamInfo = player.getActiveStream().getStreamInfo();
+        var dashMetrics = player.getDashMetrics();
+        var dashAdapter = player.getDashAdapter();
+
+        if (dashMetrics && streamInfo) {
+            var bufferLevel = dashMetrics.getCurrentBufferLevel('video', true);
+            console.log("bBuffer: " + bufferLevel + "sec")
+            var bitrate = repSwitch ? Math.round(dashAdapter.getBandwidthForRepresentation(repSwitch.to, periodIdx) / 1000) : NaN;
+            console.log("bitrate: " + bitrate + "kbps")
+        }
+
+    },8000)
+</script>
 
 <!-- Mobile Stream Menu-->
 <div class="modal fade" id="streamModal">
