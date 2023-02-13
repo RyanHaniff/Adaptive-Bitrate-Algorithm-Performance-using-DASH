@@ -64,6 +64,16 @@
         var video,
             player,
             url = "https://nustreaming.github.io/streaming/bbb.mpd";
+
+        // set our csv content var
+        let csvContent = "data:text/csv;charset=utf-8,";
+
+        // create csv header row items
+        let csvHeader = ['Selected Bitrate (Mbps)', 'Buffer Level (s)', 'Measured Throughput (Mbps)', 'Segment Download Time (s)', 'Segment Size (byte)'];
+
+        // add csv header row to csv content
+        csvContent += csvHeader.join(",") + "\r\n";
+
         function init() {
 
             player = dashjs.MediaPlayer().create();
@@ -91,9 +101,33 @@
                     //throughput
                     var avgThroughput = player.getAverageThroughput('video') / 1000000
                     console.log('throughput: ' + avgThroughput + "Mbps")
+
+                    // for each result row
+                    $('.result-row', '#results').each(function () {
+
+                        // start new csv row array var
+                        let csvRow = [];
+
+                        // set our csv row data
+                        csvRow[0] = $('[data-bufferLevel]', this).data(bufferLevel);
+                        csvRow[1] = $('[data-bitrate]', this).data(bitrate);
+
+                        // log results for debugging
+                        console.log(csvRow);
+
+                        // add csv row to csv content
+                        csvContent += csvRow.join(",") + "\r\n";
+
+                    });
                 }
 
             }, 8000)
+
+            // encode the csv content
+            let encodedUri = encodeURI(csvContent);
+
+            // open the csv file (this will be blocked here on stackoverflow)
+            window.open(encodedUri);
 
         }
 
