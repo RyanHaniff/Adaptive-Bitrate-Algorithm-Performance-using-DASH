@@ -64,26 +64,10 @@
       function init() {
         var video,
           player,
-          url = "https://nustreaming.github.io/streaming/bbb.mpd#t=600"; // The required .mpd
+          url = "https://nustreaming.github.io/streaming/bbb.mpd#t=600"; // The required .mpd, #t=600 makes us start the video at 600 seconds, was used to test logging
 
         video = document.querySelector("video");
         player = dashjs.MediaPlayer().create();
-
-        // // Set up an event listener for when a segment is downloaded
-        // var segmentDownloadTime;
-        // player.on("bytesDownloaded", function (e) {
-        //   var request = e.request;
-        //   if (request.mediaType === "video") {
-        //     var downloadTime =
-        //       request.tfinish.getTime() - request.tresponse.getTime();
-        //     segmentDownloadTime = (downloadTime / 1000).toFixed(2) + " sec";
-        //   }
-        // });
-
-        // var httpMetrics = calculateHTTPMetrics(
-        //   type,
-        //   dashMetrics.getHttpRequests(type)
-        // );
 
         player.initialize(video, url, true);
         player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function () {
@@ -95,13 +79,6 @@
           var streamInfo = player.getActiveStream().getStreamInfo();
           var dashMetrics = player.getDashMetrics();
           var dashAdapter = player.getDashAdapter();
-
-          //   if (httpMetrics) {
-          //         // $scope[type + 'Download'] = httpMetrics.download[type].low.toFixed(2) + ' | ' + httpMetrics.download[type].average.toFixed(2) + ' | ' + httpMetrics.download[type].high.toFixed(2);
-          //         console.log("Segment Download Time: " + httpMetrics.download[type].low.toFixed(2) + " secs")
-          //         // $scope[type + 'Latency'] = httpMetrics.latency[type].low.toFixed(2) + ' | ' + httpMetrics.latency[type].average.toFixed(2) + ' | ' + httpMetrics.latency[type].high.toFixed(2);
-          //         // $scope[type + 'Ratio'] = httpMetrics.ratio[type].low.toFixed(2) + ' | ' + httpMetrics.ratio[type].average.toFixed(2) + ' | ' + httpMetrics.ratio[type].high.toFixed(2);
-          //     }
 
           if (dashMetrics && streamInfo) {
             const periodIdx = streamInfo.index;
@@ -122,34 +99,29 @@
                   ) / 1000
                 )
               : NaN;
+            // Segment Download Time
+            var httpRequest = dashMetrics.getCurrentHttpRequest("video", true);
 
-            // Need to fix this part of the code
-            // var downloadTime = dashAdapter.tfinish.getTime() = dashAdapter.tresponse.getTime(); // dashMetrics.tfinish.getTime() - dashMetrics.tresponse.getTime();
-            // var segmentDownloadTime = (downloadTime / 1000).toFixed(2) + " sec";
-
-            // Things we need to display
+            // -----Things we need to display-----
             // selected bitrate (Mbps), buffer level (second), measured throughput (Mbps), segment download time (second), and segment size (byte)
 
             console.log("Selected Bitrate: " + bitrate + " kbps");
             console.log("Buffer Level: " + bufferLevel + " secs");
             console.log("Measured Throughput: " + avgThroughput + "Mbps");
-            // console.log(
-            //   "Segment Download Time: " + segmentDownloadTime + " secs"
-            // );
-            // console.log("Segment Size: " + segmentSize + " bytes");
+            
 
-            var httpRequest = dashMetrics.getCurrentHttpRequest("video", true);
             if (httpRequest && httpRequest.type === "MediaSegment") {
-              if (httpRequest.tfinish && httpRequest.tresponse) {
-                var downloadTime =
-                  httpRequest.tfinish -
-                  httpRequest.tresponse;
-                console.log("Segment download time: " + downloadTime + " ms");
-              }
+                var segmentDownloadTime =
+                  httpRequest._tfinish.getTime() -
+                  httpRequest.tresponse.getTime();
+                console.log("Segment download time: " + segmentDownloadTime + " ms");
             }
+
+            // console.log("Segment Size: " + segmentSize + " bytes");
 
             console.log("------------------");
 
+            // Console log shit that is not working yet
             // const fs = require("fs");
             // // Format the log output as a comma-separated string
             // const logOutput = `${bitrate},${bufferLevel},${avgThroughput}\n`;
@@ -165,7 +137,7 @@
             // link.download = "log.csv";
             // link.click();
           }
-        }, 1000);
+        }, 1000); // Change back to 8000 when done
       }
     </script>
   </head>
