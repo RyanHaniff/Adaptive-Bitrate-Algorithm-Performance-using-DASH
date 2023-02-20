@@ -36,26 +36,26 @@
     />
 
     <!--Libs this stuff here-->
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/jquery/jquery-3.1.1.min.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/jquery/jquery-3.1.1.min.js"></script>
 
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/angular/angular.min.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/angular/angular-resource.min.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/angular/angular-flot.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/angular/angular.min.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/angular/angular-resource.min.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/angular/angular-flot.js"></script>
 
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/bootstrap/js/bootstrap.min.js"></script>
 
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/flot/jquery.flot.min.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/flot/jquery.flot.resize.min.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/lib/flot/jquery.flot.axislabels.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/flot/jquery.flot.min.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/flot/jquery.flot.resize.min.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/lib/flot/jquery.flot.axislabels.js"></script>
 
     <!-- App -->
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/dist/dash.all.debug.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/dist/dash.mss.debug.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/contrib/akamai/controlbar/ControlBar.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/src/cast.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/main.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/rules/DownloadRatioRule.js"></script>
-    <script src="https://reference.dashif.org/dash.js/v4.5.0/samples/dash-if-reference-player/app/rules/ThroughputRule.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/dist/dash.all.debug.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/dist/dash.mss.debug.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/contrib/akamai/controlbar/ControlBar.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/src/cast.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/main.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/rules/DownloadRatioRule.js"></script>
+    <script src="https://reference.dashif.org/dash.js/nightly/samples/dash-if-reference-player/app/rules/ThroughputRule.js"></script>
 
     <!-- Google Cast -->
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
@@ -64,7 +64,7 @@
       function init() {
         var video,
           player,
-          url = "https://nustreaming.github.io/streaming/bbb.mpd"; // The required .mpd 
+          url = "https://nustreaming.github.io/streaming/bbb.mpd#t=600"; // The required .mpd
 
         video = document.querySelector("video");
         player = dashjs.MediaPlayer().create();
@@ -80,6 +80,11 @@
         //   }
         // });
 
+        // var httpMetrics = calculateHTTPMetrics(
+        //   type,
+        //   dashMetrics.getHttpRequests(type)
+        // );
+
         player.initialize(video, url, true);
         player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function () {
           clearInterval(eventPoller);
@@ -90,6 +95,13 @@
           var streamInfo = player.getActiveStream().getStreamInfo();
           var dashMetrics = player.getDashMetrics();
           var dashAdapter = player.getDashAdapter();
+
+          //   if (httpMetrics) {
+          //         // $scope[type + 'Download'] = httpMetrics.download[type].low.toFixed(2) + ' | ' + httpMetrics.download[type].average.toFixed(2) + ' | ' + httpMetrics.download[type].high.toFixed(2);
+          //         console.log("Segment Download Time: " + httpMetrics.download[type].low.toFixed(2) + " secs")
+          //         // $scope[type + 'Latency'] = httpMetrics.latency[type].low.toFixed(2) + ' | ' + httpMetrics.latency[type].average.toFixed(2) + ' | ' + httpMetrics.latency[type].high.toFixed(2);
+          //         // $scope[type + 'Ratio'] = httpMetrics.ratio[type].low.toFixed(2) + ' | ' + httpMetrics.ratio[type].average.toFixed(2) + ' | ' + httpMetrics.ratio[type].high.toFixed(2);
+          //     }
 
           if (dashMetrics && streamInfo) {
             const periodIdx = streamInfo.index;
@@ -112,12 +124,12 @@
               : NaN;
 
             // Need to fix this part of the code
-            // var downloadTime = dashMetrics.tfinish.getTime() - dashMetrics.tresponse.getTime();
+            // var downloadTime = dashAdapter.tfinish.getTime() = dashAdapter.tresponse.getTime(); // dashMetrics.tfinish.getTime() - dashMetrics.tresponse.getTime();
             // var segmentDownloadTime = (downloadTime / 1000).toFixed(2) + " sec";
-            
+
             // Things we need to display
             // selected bitrate (Mbps), buffer level (second), measured throughput (Mbps), segment download time (second), and segment size (byte)
-            
+
             console.log("Selected Bitrate: " + bitrate + " kbps");
             console.log("Buffer Level: " + bufferLevel + " secs");
             console.log("Measured Throughput: " + avgThroughput + "Mbps");
@@ -125,26 +137,35 @@
             //   "Segment Download Time: " + segmentDownloadTime + " secs"
             // );
             // console.log("Segment Size: " + segmentSize + " bytes");
-            console.log("------------------");
-          }
-        }, 8000);
 
-        if (video.webkitVideoDecodedByteCount !== undefined) {
-          var lastDecodedByteCount = 0;
-          const bitrateInterval = 5;
-          var bitrateCalculator = setInterval(function () {
-            var calculatedBitrate =
-              (((video.webkitVideoDecodedByteCount - lastDecodedByteCount) /
-                1000) *
-                8) /
-              bitrateInterval;
-            document.getElementById("calculatedBitrate").innerText =
-              Math.round(calculatedBitrate) + " Kbps";
-            lastDecodedByteCount = video.webkitVideoDecodedByteCount;
-          }, bitrateInterval * 1000);
-        } else {
-          document.getElementById("chrome-only").style.display = "none";
-        }
+            var httpRequest = dashMetrics.getCurrentHttpRequest("video", true);
+            if (httpRequest && httpRequest.type === "MediaSegment") {
+              if (httpRequest.tfinish && httpRequest.tresponse) {
+                var downloadTime =
+                  httpRequest.tfinish -
+                  httpRequest.tresponse;
+                console.log("Segment download time: " + downloadTime + " ms");
+              }
+            }
+
+            console.log("------------------");
+
+            // const fs = require("fs");
+            // // Format the log output as a comma-separated string
+            // const logOutput = `${bitrate},${bufferLevel},${avgThroughput}\n`;
+            // // Append the log output to a file named 'log.csv'
+            // fs.appendFileSync("log.csv", logOutput);
+
+            // const logOutput = `Selected Bitrate: ${bitrate} kbps, Buffer Level: ${bufferLevel} secs, Measured Throughput: ${avgThroughput}Mbps\n`;
+            // Create a Blob object and download the file
+
+            // const blob = new Blob([logOutput], { type: "text/csv" });
+            // const link = document.createElement("a");
+            // link.href = URL.createObjectURL(blob);
+            // link.download = "log.csv";
+            // link.click();
+          }
+        }, 1000);
       }
     </script>
   </head>
