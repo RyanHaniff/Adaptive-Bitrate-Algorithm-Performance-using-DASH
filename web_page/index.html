@@ -108,16 +108,23 @@
             console.log("Selected Bitrate: " + bitrate + " kbps");
             console.log("Buffer Level: " + bufferLevel + " secs");
             console.log("Measured Throughput: " + avgThroughput + "Mbps");
-            
 
             if (httpRequest && httpRequest.type === "MediaSegment") {
-                var segmentDownloadTime =
-                  httpRequest._tfinish.getTime() -
-                  httpRequest.tresponse.getTime();
-                console.log("Segment download time: " + segmentDownloadTime + " ms");
+              var segmentDownloadTime =
+                httpRequest._tfinish.getTime() -
+                httpRequest.tresponse.getTime();
+              console.log(
+                "Segment download time: " + segmentDownloadTime + " ms"
+              );
             }
 
-            // console.log("Segment Size: " + segmentSize + " bytes");
+            // Segment size
+            var httpRequests = dashMetrics.getHttpRequests('video');
+            var segmentRequest = httpRequests.filter(request => request.type === 'MediaSegment').pop();
+            var segmentSize = segmentRequest ? segmentRequest.trace.reduce((acc, cur) => acc + cur.b[0], 0) : 0;
+            console.log('Segment Size: ' + segmentSize + ' bytes');
+
+            
 
             console.log("------------------");
 
