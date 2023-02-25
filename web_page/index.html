@@ -59,20 +59,25 @@
 
     <!-- Google Cast -->
     <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+    <!-- Used to save the blob -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
     <script class="code">
       function init() {
         var video,
           player,
-          url = "https://nustreaming.github.io/streaming/bbb.mpd#t=600"; // The required .mpd, #t=600 makes us start the video at 600 seconds, was used to test logging
+          url = "https://nustreaming.github.io/streaming/bbb.mpd"; // The required .mpd, #t=600 makes us start the video at 600 seconds, was used to test logging
+
+        var all_the_logs =
+          "bitrate (kbps), buffer level (secs), throughput (Mbps), segment download time (ms), segment size (bytes) \n";
 
         video = document.querySelector("video");
         player = dashjs.MediaPlayer().create();
 
         player.initialize(video, url, true);
         player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function () {
-          clearInterval(eventPoller);
-          clearInterval(bitrateCalculator);
+          writeLogsToFile(all_the_logs);
         });
 
         var eventPoller = setInterval(function () {
@@ -106,8 +111,11 @@
             // selected bitrate (Mbps), buffer level (second), measured throughput (Mbps), segment download time (second), and segment size (byte)
 
             console.log("Selected Bitrate: " + bitrate + " kbps");
+            all_the_logs += bitrate + ", ";
             console.log("Buffer Level: " + bufferLevel + " secs");
+            all_the_logs += bufferLevel + ", ";
             console.log("Measured Throughput: " + avgThroughput + "Mbps");
+            all_the_logs += avgThroughput + ", ";
 
             if (httpRequest && httpRequest.type === "MediaSegment") {
               var segmentDownloadTime =
@@ -116,76 +124,41 @@
               console.log(
                 "Segment download time: " + segmentDownloadTime + " ms"
               );
+              all_the_logs += segmentDownloadTime + ", ";
             }
 
             // Segment size
-            var httpRequests = dashMetrics.getHttpRequests('video');
-            var segmentRequest = httpRequests.filter(request => request.type === 'MediaSegment').pop();
-            var segmentSize = segmentRequest ? segmentRequest.trace.reduce((acc, cur) => acc + cur.b[0], 0) : 0;
-            console.log('Segment Size: ' + segmentSize + ' bytes');
-
-            
+            var httpRequests = dashMetrics.getHttpRequests("video");
+            var segmentRequest = httpRequests
+              .filter((request) => request.type === "MediaSegment")
+              .pop();
+            var segmentSize = segmentRequest
+              ? segmentRequest.trace.reduce((acc, cur) => acc + cur.b[0], 0)
+              : 0;
+            console.log("Segment Size: " + segmentSize + " bytes");
+            all_the_logs += segmentSize + "\n";
 
             console.log("------------------");
-
-            // Console log shit that is not working yet
-            // const fs = require("fs");
-            // // Format the log output as a comma-separated string
-            // const logOutput = `${bitrate},${bufferLevel},${avgThroughput}\n`;
-            // // Append the log output to a file named 'log.csv'
-            // fs.appendFileSync("log.csv", logOutput);
-
-            // const logOutput = `Selected Bitrate: ${bitrate} kbps, Buffer Level: ${bufferLevel} secs, Measured Throughput: ${avgThroughput}Mbps\n`;
-            // Create a Blob object and download the file
-
-            // const blob = new Blob([logOutput], { type: "text/csv" });
-            // const link = document.createElement("a");
-            // link.href = URL.createObjectURL(blob);
-            // link.download = "log.csv";
-            // link.click();
           }
-        }, 1000); // Change back to 8000 when done
+        }, 8000); // Change back to 8000 when done
+
+        function writeLogsToFile(logs) {
+          var element = document.createElement("a");
+          element.setAttribute(
+            "href",
+            "data:text/plain;charset=utf-8," + encodeURIComponent(logs)
+          );
+          element.setAttribute("download", "logs.txt");
+          element.style.display = "none";
+          document.body.appendChild(element);
+          element.click();
+          document.body.removeChild(element);
+        }
       }
     </script>
   </head>
 
   <body ng-controller="DashController">
-    <!-- COMP 445 Script -->
-    <!-- <script>
-
-// Stream options: https://nustreaming.github.io/streaming/bbb.mpd
-
-            player = dashjs.MediaPlayer().create();
-            video = document.querySelector("video");
-            player.initialize(); /* initialize the MediaPlayer instance */
-
-            //player.setAutoPlay(false); /* remove this line if you want the player to start automatically on load */
-            player.attachView(video); /* tell the player which videoElement it should use */
-            player.attachSource(url); /* provide the manifest source */
-
-            setInterval(() => {
-                var streamInfo = player.getActiveStream().getStreamInfo();
-                var dashMetrics = player.getDashMetrics();
-                var dashAdapter = player.getDashAdapter();
-
-                if (dashMetrics && streamInfo) {
-                    //buffer level
-                    var bufferLevel = dashMetrics.getCurrentBufferLevel('video', true);
-                    console.log("bBuffer: " + bufferLevel + "sec")
-                    //bitrate
-                    const periodIdx = streamInfo.index;
-                    var repSwitch = dashMetrics.getCurrentRepresentationSwitch('video', true);
-                    var bitrate = repSwitch ? dashAdapter.getBandwidthForRepresentation(repSwitch.to, periodIdx) / 1000000 : NaN;
-                    console.log("bitrate: " + bitrate + "Mbps")
-                    //throughput
-                    var avgThroughput = player.getAverageThroughput('video') / 1000000
-                    console.log('throughput: ' + avgThroughput + "Mbps")
-                }
-
-            }, 8000)
-
-    </script> -->
-
     <!-- Mobile Stream Menu-->
     <div class="modal fade" id="streamModal">
       <div class="modal-dialog">
