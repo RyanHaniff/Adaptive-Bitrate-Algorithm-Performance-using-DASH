@@ -81,9 +81,9 @@
                     abr: {
                         useDefaultABRRules: true,
                         // +++++++++++++++++ Other ABR strategies +++++++++++++++++
-                        // ABRStrategy: 'abrDyanmic',
+                        ABRStrategy: 'abrDyanmic',
                         // ABRStrategy: 'abrBola',
-                        ABRStrategy: 'abrThroughput',
+                        // ABRStrategy: 'abrThroughput',
                         additionalAbrRules: {
                             insufficientBufferRule: true,
                             switchHistoryRule: true,
@@ -148,8 +148,8 @@
             }
 
             // Segment size
-            var httpRequests = dashMetrics.getHttpRequests("video");
-            var segmentRequest = httpRequests
+            var httpRequestsSize = dashMetrics.getHttpRequests("video");
+            var segmentRequest = httpRequestsSize
               .filter((request) => request.type === "MediaSegment")
               .pop();
             var segmentSize = segmentRequest
