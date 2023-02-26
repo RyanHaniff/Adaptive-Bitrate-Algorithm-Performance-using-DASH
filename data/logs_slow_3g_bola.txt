@@ -1,4 +1,4 @@
-bitrate (kbps), buffer level (secs), throughput (Mbps), segment download time (ms), segment size (bytes) 
+bitrate (kbps),buffer level (secs),throughput (Mbps),segment download time (ms),segment size (bytes) 
 1628, 0, NaN, 0
 542, 7.275, 0.000359, 0, 363191
 542, 66.136, 0.0005345, 5371, 476864

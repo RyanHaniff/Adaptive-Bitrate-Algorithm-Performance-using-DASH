@@ -1,4 +1,4 @@
-bitrate (kbps), buffer level (secs), throughput (Mbps), segment download time (ms), segment size (bytes) 
+bitrate (kbps),buffer level (secs),throughput (Mbps),segment download time (ms),segment size (bytes) 
 542, 0.631, 3.307912, 1, 542403
 542, 180.82, 3.307912, 1, 542403
 542, 180.921, 0.000365, 13289, 606474
