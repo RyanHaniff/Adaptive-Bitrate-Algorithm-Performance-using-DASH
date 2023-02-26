@@ -75,6 +75,26 @@
         video = document.querySelector("video");
         player = dashjs.MediaPlayer().create();
 
+        // Change the ABR settings here
+        player.updateSettings({
+                streaming: {
+                    abr: {
+                        useDefaultABRRules: true,
+                        // +++++++++++++++++ Other ABR strategies +++++++++++++++++
+                        // ABRStrategy: 'abrDyanmic',
+                        ABRStrategy: 'abrBola',
+                        // ABRStrategy: 'abrThroughput',
+                        additionalAbrRules: {
+                            insufficientBufferRule: true,
+                            switchHistoryRule: true,
+                            droppedFramesRule: true,
+                            abandonRequestsRule: true
+                        }
+                        
+                    }
+                }
+            });
+
         player.initialize(video, url, true);
         player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function () {
           writeLogsToFile(all_the_logs);
