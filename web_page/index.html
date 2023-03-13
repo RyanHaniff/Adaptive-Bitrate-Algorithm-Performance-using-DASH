@@ -64,15 +64,20 @@
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
     <script class="code">
+      // initialization function
       function init() {
         var video,
           player,
+          // mpd url that we needed
           url = "https://nustreaming.github.io/streaming/bbb.mpd"; // The required .mpd, #t=600 makes us start the video at 600 seconds, was used to test logging
 
+        // variables that we are logging and saved
         var all_the_logs =
           "bitrate (kbps), buffer level (secs), throughput (Mbps), segment download time (ms), segment size (bytes) \n";
 
+        // searches the DOM (Document Object Model) for the first video element and returns it
         video = document.querySelector("video");
+        // creates an instance of the DASH (Dynamic Adaptive Streaming over HTTP) media player and returns it
         player = dashjs.MediaPlayer().create();
 
         // Change the ABR settings here
@@ -94,26 +99,34 @@
                     }
                 }
             });
-
+        // start playback
         player.initialize(video, url, true);
+        // when playback is finished run the writeLogsToFile function
         player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function () {
           writeLogsToFile(all_the_logs);
-        });
+        }); 
 
+        //  repeatedly execute this block of code every 8 seconds
+        // logs the stats about throughput, buffer level, bitrate, segment download time, and segment size
         var eventPoller = setInterval(function () {
+          // gets the active stream and its stream info.
           var streamInfo = player.getActiveStream().getStreamInfo();
+          // gets the metrics from the DASH player
           var dashMetrics = player.getDashMetrics();
+          //  gets the adapter from the DASH player
           var dashAdapter = player.getDashAdapter();
 
           if (dashMetrics && streamInfo) {
+            // gets the period index from the stream info
             const periodIdx = streamInfo.index;
+            // gets the current representation switch for the video track
             var repSwitch = dashMetrics.getCurrentRepresentationSwitch(
               "video",
               true
             );
-            //throughput
+            //throughput in Mbps
             var avgThroughput = player.getAverageThroughput("video") / 1000000;
-            // BufferLevel
+            // BufferLevel in seconds
             var bufferLevel = dashMetrics.getCurrentBufferLevel("video", true);
             // Bitrate
             var bitrate = repSwitch
@@ -127,9 +140,7 @@
             // Segment Download Time
             var httpRequest = dashMetrics.getCurrentHttpRequest("video", true);
 
-            // -----Things we need to display-----
-            // selected bitrate (Mbps), buffer level (second), measured throughput (Mbps), segment download time (second), and segment size (byte)
-
+            // Appending the logs and showing them in console logs
             console.log("Selected Bitrate: " + bitrate + " kbps");
             all_the_logs += bitrate + ", ";
             console.log("Buffer Level: " + bufferLevel + " secs");
@@ -137,10 +148,14 @@
             console.log("Measured Throughput: " + avgThroughput + "Mbps");
             all_the_logs += avgThroughput + ", ";
 
+            // Checks if there is a valid HTTP request for a media segment
             if (httpRequest && httpRequest.type === "MediaSegment") {
+              //  subtracting the response time (tresponse) from the finish time (_tfinish) of the httpRequest object
               var segmentDownloadTime =
                 httpRequest._tfinish.getTime() -
                 httpRequest.tresponse.getTime();
+
+              // logs the segment download time
               console.log(
                 "Segment download time: " + segmentDownloadTime + " ms"
               );
@@ -148,30 +163,43 @@
             }
 
             // Segment size
+            // retrieves all HTTP requests made by the player for the "video" stream
             var httpRequestsSize = dashMetrics.getHttpRequests("video");
+            // filters the httpRequestsSize array to get the last HTTP request object of type "MediaSegment"
             var segmentRequest = httpRequestsSize
               .filter((request) => request.type === "MediaSegment")
               .pop();
+            // calculates the size of the media segment by summing up the sizes of all the chunks (or byte-ranges) in the segment
+            // The reduce() method takes a callback function that accumulates the size of each chunk and returns the total size
             var segmentSize = segmentRequest
               ? segmentRequest.trace.reduce((acc, cur) => acc + cur.b[0], 0)
               : 0;
+            // logs the segment size
             console.log("Segment Size: " + segmentSize + " bytes");
             all_the_logs += segmentSize + "\n";
 
             console.log("------------------");
           }
-        }, 8000); // Change back to 8000 when done
+        }, 8000);
 
+        // used to save the logs generated by the video player to a file
         function writeLogsToFile(logs) {
+          // used to create a hyperlink to a file
           var element = document.createElement("a");
+          // Sets the href attribute of the anchor element to a data: URL containing the logs, encoded as plain
           element.setAttribute(
             "href",
             "data:text/plain;charset=utf-8," + encodeURIComponent(logs)
           );
+          // specifies the default filename for the downloaded file
           element.setAttribute("download", "logs.txt");
+          // not visible on the web page
           element.style.display = "none";
+          // anchor element is then appended
           document.body.appendChild(element);
+          //  to simulate a user click on the hyperlink
           element.click();
+          // anchor element is removed from the web page
           document.body.removeChild(element);
         }
       }
